@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                BigInt    @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  email_verified_at DateTime?
+  password          String
+  role              String    @default("tourist")
+  remember_token    String?
+  created_at        DateTime? @default(now())
+  updated_at        DateTime? @updatedAt
+
+  @@map("users")
+}
+
+model State {
+  id          BigInt       @id @default(autoincrement())
+  name        String
+  slug        String       @unique
+  region      String?
+  created_at  DateTime?    @default(now())
+  updated_at  DateTime?    @updatedAt
+  attractions Attraction[]
+
+  @@map("states")
+}
+
+model Category {
+  id          BigInt       @id @default(autoincrement())
+  name        String
+  slug        String       @unique
+  icon        String?
+  color       String       @default("#0B3D2E")
+  description String?      @db.Text
+  created_at  DateTime?    @default(now())
+  updated_at  DateTime?    @updatedAt
+  attractions Attraction[]
+
+  @@map("categories")
+}
+
+model Attraction {
+  id                BigInt        @id @default(autoincrement())
+  category_id       BigInt
+  state_id          BigInt
+  name              String
+  slug              String        @unique
+  short_description String        @db.VarChar(500)
+  description       String        @db.Text
+  history           String?       @db.LongText
+  interesting_facts String?       @db.Text
+  address           String?
+  lga               String?
+  latitude          Decimal?      @db.Decimal(10, 8)
+  longitude         Decimal?      @db.Decimal(11, 8)
+  thumbnail         String?
+  hero_image        String?
+  audio             String?
+  visiting_hours    String?
+  entry_fee         String?
+  is_featured       Boolean       @default(false)
+  tour_available    Boolean       @default(false)
+  status            String        @default("draft")
+  view_count        Int           @default(0)
+  created_at        DateTime?     @default(now())
+  updated_at        DateTime?     @updatedAt
+
+  category          Category      @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  state             State         @relation(fields: [state_id], references: [id], onDelete: Cascade)
+  scenes            Scene[]
+  media_items       MediaItem[]
+  tour_sessions     TourSession[]
+
+  @@map("attractions")
+}
+
+model Scene {
+  id              BigInt      @id @default(autoincrement())
+  attraction_id   BigInt
+  name            String
+  slug            String
+  panorama_path   String?
+  thumbnail       String?
+  initial_yaw     Float       @default(0)
+  initial_pitch   Float       @default(0)
+  initial_hfov    Float       @default(100)
+  sort_order      Int         @default(0)
+  latitude        Decimal?    @db.Decimal(10, 8)
+  longitude       Decimal?    @db.Decimal(11, 8)
+  description     String?     @db.Text
+  audio_narration String?
+  is_default      Boolean     @default(false)
+  status          String      @default("draft")
+  created_at      DateTime?   @default(now())
+  updated_at      DateTime?   @updatedAt
+
+  attraction      Attraction  @relation(fields: [attraction_id], references: [id], onDelete: Cascade)
+  hotspots        Hotspot[]   @relation("SceneHotspots")
+  target_hotspots Hotspot[]   @relation("TargetScene")
+  scene_views     SceneView[]
+  media_items     MediaItem[]
+
+  @@unique([attraction_id, slug])
+  @@map("scenes")
+}
+
+model Hotspot {
+  id              BigInt    @id @default(autoincrement())
+  scene_id        BigInt
+  type            String
+  yaw             Float
+  pitch           Float
+  label           String
+  description     String?   @db.Text
+  target_scene_id BigInt?
+  media_path      String?
+  media_type      String?
+  icon            String?
+  sort_order      Int       @default(0)
+  created_at      DateTime? @default(now())
+  updated_at      DateTime? @updatedAt
+
+  scene           Scene     @relation("SceneHotspots", fields: [scene_id], references: [id], onDelete: Cascade)
+  target_scene    Scene?    @relation("TargetScene", fields: [target_scene_id], references: [id], onDelete: SetNull)
+
+  @@map("hotspots")
+}
+
+model MediaItem {
+  id            BigInt      @id @default(autoincrement())
+  attraction_id BigInt?
+  scene_id      BigInt?
+  type          String
+  path          String
+  caption       String?
+  sort_order    Int         @default(0)
+  created_at    DateTime?   @default(now())
+  updated_at    DateTime?   @updatedAt
+
+  attraction    Attraction? @relation(fields: [attraction_id], references: [id], onDelete: Cascade)
+  scene         Scene?      @relation(fields: [scene_id], references: [id], onDelete: Cascade)
+
+  @@map("media_items")
+}
+
+model TourSession {
+  id                 BigInt      @id @default(autoincrement())
+  attraction_id      BigInt
+  session_uuid       String      @unique
+  device_type        String      @default("desktop")
+  browser            String?
+  os                 String?
+  avg_fps            Float?
+  load_time_ms       Float?
+  transition_time_ms Float?
+  scenes_visited     Int         @default(0)
+  completed          Boolean     @default(false)
+  started_at         DateTime?
+  ended_at           DateTime?
+  created_at         DateTime?   @default(now())
+  updated_at         DateTime?   @updatedAt
+
+  attraction         Attraction  @relation(fields: [attraction_id], references: [id], onDelete: Cascade)
+  scene_views        SceneView[]
+
+  @@map("tour_sessions")
+}
+
+model SceneView {
+  id              BigInt      @id @default(autoincrement())
+  tour_session_id BigInt
+  scene_id        BigInt
+  viewed_at       DateTime?   @default(now())
+  created_at      DateTime?   @default(now())
+  updated_at      DateTime?   @updatedAt
+
+  tour_session    TourSession @relation(fields: [tour_session_id], references: [id], onDelete: Cascade)
+  scene           Scene       @relation(fields: [scene_id], references: [id], onDelete: Cascade)
+
+  @@map("scene_views")
+}

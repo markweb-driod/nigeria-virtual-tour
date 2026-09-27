@@ -21,4 +21,7 @@
 /vendor
 Homestead.json
 Homestead.yaml
+/.next
+.env.local
+.env*.local
 Thumbs.db
