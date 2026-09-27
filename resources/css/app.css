@@ -9,10 +9,13 @@
         scroll-behavior: smooth;
     }
     body {
-        @apply font-body text-dark bg-bglight antialiased;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: #101914;
+        background-color: #F8FAF8;
+        -webkit-font-smoothing: antialiased;
     }
     h1, h2, h3, h4, h5, h6 {
-        @apply font-heading;
+        font-family: Manrope, Sora, ui-sans-serif, system-ui, sans-serif;
     }
 }
 
@@ -37,10 +40,13 @@
     /* --- Cards --- */
     .attraction-card {
         @apply relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl
-               transition-all duration-300 hover:-translate-y-1 group;
+               transition-all duration-300 hover:-translate-y-1;
     }
     .attraction-card-img {
-        @apply w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105;
+        @apply w-full h-56 object-cover transition-transform duration-500;
+    }
+    .attraction-card:hover .attraction-card-img {
+        transform: scale(1.05);
     }
     .attraction-card-body {
         @apply p-5;
@@ -51,13 +57,13 @@
         @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
     }
     .badge-forest {
-        @apply badge bg-forest-50 text-forest-600;
+        @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-forest-50 text-forest-600;
     }
     .badge-gold {
-        @apply badge bg-gold-50 text-gold-600;
+        @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-gold-50 text-gold-600;
     }
     .badge-green {
-        @apply badge bg-emerald-50 text-emerald-700;
+        @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700;
     }
 
     /* --- Section headers --- */
@@ -79,10 +85,16 @@
         @apply block text-sm font-semibold text-gray-700 mb-1.5;
     }
     .form-select {
-        @apply form-input appearance-none cursor-pointer pr-10;
+        @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm
+               text-dark placeholder-gray-400 shadow-sm
+               focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none
+               transition duration-200 appearance-none cursor-pointer pr-10;
     }
     .form-textarea {
-        @apply form-input resize-y min-h-[120px];
+        @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm
+               text-dark placeholder-gray-400 shadow-sm
+               focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none
+               transition duration-200 resize-y min-h-[120px];
     }
     .form-error {
         @apply text-red-500 text-xs mt-1;
