@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        @apply font-body text-dark bg-bglight antialiased;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-heading;
+    }
+}
+
+@layer components {
+    /* --- Buttons --- */
+    .btn-primary {
+        @apply inline-flex items-center gap-2 bg-forest text-white font-semibold px-6 py-3 rounded-2xl
+               hover:bg-forest-600 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg;
+    }
+    .btn-secondary {
+        @apply inline-flex items-center gap-2 bg-gold text-dark font-semibold px-6 py-3 rounded-2xl
+               hover:bg-gold-500 active:scale-95 transition-all duration-200 shadow-md;
+    }
+    .btn-ghost {
+        @apply inline-flex items-center gap-2 border-2 border-forest text-forest font-semibold px-6 py-3 rounded-2xl
+               hover:bg-forest hover:text-white active:scale-95 transition-all duration-200;
+    }
+    .btn-sm {
+        @apply px-4 py-2 text-sm rounded-xl;
+    }
+
+    /* --- Cards --- */
+    .attraction-card {
+        @apply relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl
+               transition-all duration-300 hover:-translate-y-1 group;
+    }
+    .attraction-card-img {
+        @apply w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105;
+    }
+    .attraction-card-body {
+        @apply p-5;
+    }
+
+    /* --- Badges --- */
+    .badge {
+        @apply inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full;
+    }
+    .badge-forest {
+        @apply badge bg-forest-50 text-forest-600;
+    }
+    .badge-gold {
+        @apply badge bg-gold-50 text-gold-600;
+    }
+    .badge-green {
+        @apply badge bg-emerald-50 text-emerald-700;
+    }
+
+    /* --- Section headers --- */
+    .section-label {
+        @apply text-gold font-semibold text-sm tracking-widest uppercase;
+    }
+    .section-title {
+        @apply text-3xl md:text-4xl font-heading font-bold text-dark leading-tight;
+    }
+
+    /* --- Form controls --- */
+    .form-input {
+        @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm
+               text-dark placeholder-gray-400 shadow-sm
+               focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none
+               transition duration-200;
+    }
+    .form-label {
+        @apply block text-sm font-semibold text-gray-700 mb-1.5;
+    }
+    .form-select {
+        @apply form-input appearance-none cursor-pointer pr-10;
+    }
+    .form-textarea {
+        @apply form-input resize-y min-h-[120px];
+    }
+    .form-error {
+        @apply text-red-500 text-xs mt-1;
+    }
+
+    /* --- Admin sidebar --- */
+    .admin-nav-item {
+        @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-300
+               hover:bg-white/10 hover:text-white transition-all duration-150;
+    }
+    .admin-nav-item.active {
+        @apply bg-white/15 text-white;
+    }
+
+    /* --- Stat cards --- */
+    .stat-card {
+        @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow;
+    }
+
+    /* --- Tour viewer controls --- */
+    .tour-control-btn {
+        @apply flex items-center justify-center w-10 h-10 rounded-xl
+               bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm
+               transition-all duration-150 cursor-pointer border border-white/10;
+    }
+
+    /* --- Glass overlay --- */
+    .glass {
+        @apply bg-white/10 backdrop-blur-md border border-white/20;
+    }
+    .glass-dark {
+        @apply bg-black/40 backdrop-blur-md border border-white/10;
+    }
+
+    /* --- Panorama hotspot --- */
+    .hotspot-scene {
+        @apply flex items-center gap-2 bg-forest text-white text-sm font-semibold
+               px-3 py-2 rounded-full shadow-lg cursor-pointer
+               hover:bg-gold hover:text-dark transition-all duration-200 whitespace-nowrap;
+    }
+    .hotspot-info {
+        @apply flex items-center justify-center w-9 h-9 rounded-full
+               bg-blue-500 text-white shadow-lg cursor-pointer
+               hover:bg-blue-400 transition-all duration-200 text-base font-bold;
+    }
+    .hotspot-media {
+        @apply flex items-center justify-center w-9 h-9 rounded-full
+               bg-gold text-dark shadow-lg cursor-pointer
+               hover:bg-gold-300 transition-all duration-200 text-base;
+    }
+}
+
+@layer utilities {
+    .text-shadow {
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .text-shadow-lg {
+        text-shadow: 0 4px 16px rgba(0,0,0,0.7);
+    }
+}
+
+/* Pannellum customizations */
+.pnlm-container {
+    background: #101914 !important;
+}
+.pnlm-load-box {
+    background: rgba(11,61,46,0.95) !important;
+    border-radius: 1rem !important;
+    border: 1px solid rgba(212,160,23,0.3) !important;
+}
+.pnlm-lbar {
+    background: #D4A017 !important;
+}
+.pnlm-lbar-fill {
+    background: #0B3D2E !important;
+}
+.pnlm-load-button {
+    background: #0B3D2E !important;
+    border-radius: 0.75rem !important;
+}
+.pnlm-load-button:hover {
+    background: #D4A017 !important;
+    color: #101914 !important;
+}
+.pnlm-controls {
+    display: none !important;
+}
