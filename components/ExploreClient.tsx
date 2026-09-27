@@ -7,11 +7,12 @@ import {
   MapPin,
   Sparkles,
   ArrowRight,
-  Filter,
-  SlidersHorizontal,
-  Compass,
   RotateCcw,
+  Eye,
+  Layers,
+  Compass,
 } from "lucide-react";
+import { getAssetUrl } from "@/lib/utils";
 
 interface Props {
   initialAttractions: any[];
@@ -42,7 +43,6 @@ export default function ExploreClient({
   const filteredAttractions = useMemo(() => {
     return initialAttractions
       .filter((item) => {
-        // Search filter
         if (search.trim()) {
           const q = search.toLowerCase();
           const matchName = item.name.toLowerCase().includes(q);
@@ -51,20 +51,15 @@ export default function ExploreClient({
           if (!matchName && !matchDesc && !matchState) return false;
         }
 
-        // Category filter
         if (selectedCategory !== "all") {
           if (item.category?.slug !== selectedCategory) return false;
         }
 
-        // State filter
         if (selectedState !== "all") {
           if (item.state?.slug !== selectedState) return false;
         }
 
-        // 360 Tour availability
         if (tourOnly && !item.tour_available) return false;
-
-        // Featured
         if (featuredOnly && !item.is_featured) return false;
 
         return true;
@@ -88,23 +83,23 @@ export default function ExploreClient({
   return (
     <div className="space-y-8">
       {/* Controls Bar */}
-      <div className="glass-panel p-5 rounded-3xl border border-white/10 space-y-4 shadow-xl">
-        {/* Search input + toggles */}
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
-          {/* Search bar */}
+      <div className="glass-panel p-6 rounded-3xl border border-white/10 space-y-5 shadow-2xl">
+        {/* Search input + quick filter buttons */}
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+          {/* Search bar with dark background */}
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search destinations (e.g. Olumo Rock, Zuma, Caves, Ogun)..."
-              className="w-full bg-obsidian-surface/80 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder-stone-400 focus:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40"
+              placeholder="Search destinations by name, state, or keywords (e.g. Olumo, Zuma, Caves, Ogun)..."
+              className="w-full bg-stone-900 border border-stone-700/80 rounded-2xl pl-11 pr-16 py-3.5 text-sm text-stone-100 placeholder:text-stone-400 focus:outline-none focus:border-gold-400 focus:bg-stone-950 focus:ring-1 focus:ring-gold-400/40 transition-all shadow-inner"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-stone-400 hover:text-white"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-stone-400 hover:text-white bg-white/10 px-2 py-1 rounded-lg"
               >
                 Clear
               </button>
@@ -112,13 +107,13 @@ export default function ExploreClient({
           </div>
 
           {/* Quick Filter Badges */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setTourOnly(!tourOnly)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
                 tourOnly
-                  ? "bg-emerald-900/80 border border-emerald-500 text-emerald-300 shadow-glow-forest"
-                  : "bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10"
+                  ? "bg-emerald-950 border border-emerald-400 text-emerald-300 shadow-glow-forest"
+                  : "bg-stone-900 border border-stone-800 text-stone-300 hover:bg-stone-800"
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${tourOnly ? "bg-emerald-400 animate-pulse" : "bg-stone-500"}`} />
@@ -127,10 +122,10 @@ export default function ExploreClient({
 
             <button
               onClick={() => setFeaturedOnly(!featuredOnly)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+              className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
                 featuredOnly
-                  ? "bg-gold-900/60 border border-gold-500 text-gold-300 shadow-glow-gold"
-                  : "bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10"
+                  ? "bg-gold-950 border border-gold-400 text-gold-300 shadow-glow-gold"
+                  : "bg-stone-900 border border-stone-800 text-stone-300 hover:bg-stone-800"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -140,7 +135,7 @@ export default function ExploreClient({
             {(search || selectedCategory !== "all" || selectedState !== "all" || tourOnly || featuredOnly) && (
               <button
                 onClick={resetFilters}
-                className="px-3 py-2.5 rounded-xl text-xs font-medium text-stone-400 hover:text-white flex items-center gap-1 hover:bg-white/5"
+                className="px-3.5 py-3 rounded-xl text-xs font-medium text-stone-400 hover:text-white flex items-center gap-1.5 hover:bg-white/5 border border-transparent hover:border-white/10"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Reset
@@ -150,18 +145,18 @@ export default function ExploreClient({
         </div>
 
         {/* Dropdown Filters & Sorting */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-white/5 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5 text-xs">
           {/* Category Dropdown */}
           <div>
-            <label className="block text-stone-400 font-medium mb-1.5">Category</label>
+            <label className="block text-stone-300 font-semibold mb-1.5">Category</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-obsidian-surface border border-white/10 rounded-xl px-3 py-2.5 text-stone-200 focus:outline-none focus:border-gold-500/50"
+              className="w-full bg-stone-900 border border-stone-700/80 rounded-xl px-3.5 py-2.5 text-stone-100 focus:outline-none focus:border-gold-400 cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.slug}>
+                <option key={c.id} value={c.slug} className="bg-stone-900 text-stone-100">
                   {c.name}
                 </option>
               ))}
@@ -170,15 +165,15 @@ export default function ExploreClient({
 
           {/* State Dropdown */}
           <div>
-            <label className="block text-stone-400 font-medium mb-1.5">Nigerian State</label>
+            <label className="block text-stone-300 font-semibold mb-1.5">Nigerian State</label>
             <select
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
-              className="w-full bg-obsidian-surface border border-white/10 rounded-xl px-3 py-2.5 text-stone-200 focus:outline-none focus:border-gold-500/50"
+              className="w-full bg-stone-900 border border-stone-700/80 rounded-xl px-3.5 py-2.5 text-stone-100 focus:outline-none focus:border-gold-400 cursor-pointer"
             >
-              <option value="all">All States</option>
+              <option value="all">All Nigerian States</option>
               {states.map((s) => (
-                <option key={s.id} value={s.slug}>
+                <option key={s.id} value={s.slug} className="bg-stone-900 text-stone-100">
                   {s.name} State
                 </option>
               ))}
@@ -187,14 +182,14 @@ export default function ExploreClient({
 
           {/* Sort By */}
           <div>
-            <label className="block text-stone-400 font-medium mb-1.5">Order By</label>
+            <label className="block text-stone-300 font-semibold mb-1.5">Order By</label>
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="w-full bg-obsidian-surface border border-white/10 rounded-xl px-3 py-2.5 text-stone-200 focus:outline-none focus:border-gold-500/50"
+              className="w-full bg-stone-900 border border-stone-700/80 rounded-xl px-3.5 py-2.5 text-stone-100 focus:outline-none focus:border-gold-400 cursor-pointer"
             >
-              <option value="popular">Most Popular</option>
-              <option value="name">Alphabetical (A-Z)</option>
+              <option value="popular" className="bg-stone-900 text-stone-100">Most Popular (By Views)</option>
+              <option value="name" className="bg-stone-900 text-stone-100">Alphabetical (A-Z)</option>
             </select>
           </div>
         </div>
@@ -203,77 +198,99 @@ export default function ExploreClient({
       {/* Results Count Banner */}
       <div className="flex items-center justify-between text-xs text-stone-400 px-1">
         <span>
-          Showing <strong className="text-white font-mono">{filteredAttractions.length}</strong> destination{filteredAttractions.length === 1 ? "" : "s"}
+          Showing <strong className="text-white font-mono text-sm">{filteredAttractions.length}</strong> destination{filteredAttractions.length === 1 ? "" : "s"}
         </span>
       </div>
 
       {/* Grid of Destination Cards */}
       {filteredAttractions.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAttractions.map((attraction) => (
-            <div
-              key={attraction.id}
-              className="group relative rounded-3xl overflow-hidden glass-panel border border-white/10 hover:border-gold-500/50 hover:shadow-2xl transition-all duration-300 flex flex-col"
-            >
-              {/* Card Thumbnail Area */}
-              <div className="relative h-60 bg-gradient-to-br from-forest-800 via-forest-950 to-obsidian p-5 flex flex-col justify-between overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,160,23,0.2),transparent_60%)]" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredAttractions.map((attraction) => {
+            const thumbUrl = getAssetUrl(attraction.thumbnail, "/images/placeholder.webp");
+            return (
+              <div
+                key={attraction.id}
+                className="group relative rounded-3xl overflow-hidden glass-panel-elevated border border-white/10 hover:border-gold-500/50 hover:shadow-glow-gold transition-all duration-300 flex flex-col"
+              >
+                {/* Photographic Thumbnail Area */}
+                <div className="relative h-64 w-full overflow-hidden bg-stone-900">
+                  <img
+                    src={thumbUrl}
+                    alt={attraction.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "/images/placeholder.webp";
+                    }}
+                  />
+                  {/* Subtle dark gradient overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/50 to-black/30" />
 
-                <div className="relative z-10 flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-obsidian/80 backdrop-blur-md text-gold-400 border border-gold-500/30">
-                    {attraction.category?.name}
-                  </span>
-                  {attraction.tour_available && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      360° Panorama
+                  {/* Top Badges */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-obsidian/90 backdrop-blur-md text-gold-400 border border-gold-500/40 shadow-lg">
+                      {attraction.category?.name}
                     </span>
-                  )}
-                </div>
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 text-xs text-stone-300 mb-1">
-                    <MapPin className="w-3.5 h-3.5 text-gold-400" />
-                    <span>{attraction.state?.name}, Nigeria</span>
-                  </div>
-                  <h3 className="font-heading font-black text-2xl text-white group-hover:text-gold-300 transition-colors">
-                    {attraction.name}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
-                <p className="text-xs text-stone-300 line-clamp-3 leading-relaxed">
-                  {attraction.short_description}
-                </p>
-
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-stone-400">
-                    {attraction.scenes?.length || 1} Scene{attraction.scenes?.length === 1 ? "" : "s"}
-                  </span>
-
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/attractions/${attraction.slug}`}
-                      className="text-xs text-stone-300 hover:text-white px-3 py-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors"
-                    >
-                      Dossier
-                    </Link>
                     {attraction.tour_available && (
-                      <Link
-                        href={`/tour/${attraction.slug}`}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-forest-600 to-forest-500 hover:from-gold-500 hover:to-gold-600 hover:text-obsidian text-white border border-forest-400/40 transition-all duration-200 shadow-md"
-                      >
-                        <span>360° Tour</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-forest-950/90 backdrop-blur-md text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-lg">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        360° Panorama
+                      </span>
                     )}
                   </div>
+
+                  {/* Bottom Title on Image */}
+                  <div className="absolute bottom-4 left-4 right-4 z-10">
+                    <div className="flex items-center gap-1.5 text-xs text-stone-300 mb-1">
+                      <MapPin className="w-3.5 h-3.5 text-gold-400" />
+                      <span>{attraction.state?.name}, Nigeria</span>
+                    </div>
+                    <h3 className="font-heading font-black text-2xl text-white group-hover:text-gold-300 transition-colors drop-shadow-md">
+                      {attraction.name}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5 bg-obsidian-surface/60">
+                  <p className="text-xs text-stone-300 line-clamp-3 leading-relaxed">
+                    {attraction.short_description}
+                  </p>
+
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-xs text-stone-400 font-mono">
+                      <span className="flex items-center gap-1">
+                        <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                        {attraction.scenes?.length || 1} Scene{attraction.scenes?.length === 1 ? "" : "s"}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5 text-gold-400" />
+                        {(attraction.view_count || 0).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/attractions/${attraction.slug}`}
+                        className="text-xs font-semibold text-stone-300 hover:text-white px-3 py-2 rounded-xl hover:bg-white/10 border border-white/10 transition-colors"
+                      >
+                        Dossier
+                      </Link>
+                      {attraction.tour_available && (
+                        <Link
+                          href={`/tour/${attraction.slug}`}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-heading font-bold uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-obsidian shadow-glow-gold transition-all duration-200"
+                        >
+                          <span>360° Tour</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         /* Empty State */

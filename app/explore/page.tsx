@@ -47,7 +47,7 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-obsidian pt-32 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-10 text-center sm:text-left">

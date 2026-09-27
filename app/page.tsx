@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { serializeData } from "@/lib/utils";
+import { serializeData, getAssetUrl } from "@/lib/utils";
 import {
   Compass,
   Sparkles,
@@ -63,7 +63,7 @@ export default async function HomePage() {
   return (
     <div className="relative overflow-hidden bg-obsidian">
       {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-[92vh] flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-[92vh] flex items-center justify-center pt-32 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8">
         {/* Ambient Gradient Mesh Background */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(19,84,63,0.35),rgba(7,12,10,0))]" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-forest-600/20 via-gold-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
@@ -203,21 +203,26 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right Media Graphic */}
-            <div className="relative h-72 sm:h-96 lg:h-full lg:col-span-5 bg-gradient-to-br from-forest-800 to-obsidian-surface p-6 flex flex-col justify-end">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,160,23,0.15),transparent_70%)]" />
-              <div className="relative z-10 glass-panel p-5 rounded-2xl border border-white/10 space-y-2">
-                <div className="flex items-center justify-between text-xs text-stone-400">
+            {/* Right Media Graphic with Real Destination Photography */}
+            <div className="relative min-h-[320px] sm:min-h-[400px] lg:h-full lg:col-span-5 p-6 flex flex-col justify-end overflow-hidden group">
+              <img
+                src={getAssetUrl(featured.hero_image || featured.thumbnail)}
+                alt={featured.name}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/60 to-black/30" />
+              <div className="relative z-10 glass-panel p-5 rounded-2xl border border-white/15 backdrop-blur-md space-y-2 shadow-xl">
+                <div className="flex items-center justify-between text-xs text-stone-300">
                   <span>Rendering Engine</span>
-                  <span className="text-gold-400 font-mono">Pannellum 2.5.6 WebGL</span>
+                  <span className="text-gold-400 font-mono font-bold">Pannellum 2.5.6 WebGL</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-stone-400">
+                <div className="flex items-center justify-between text-xs text-stone-300">
                   <span>Equirectangular Resolution</span>
                   <span className="text-white font-mono">2048 × 1024 (2:1 Ratio)</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-stone-400">
+                <div className="flex items-center justify-between text-xs text-stone-300">
                   <span>Navigation Nodes</span>
-                  <span className="text-emerald-400 font-mono">Interactive Hotspots</span>
+                  <span className="text-emerald-400 font-mono font-bold">Interactive Hotspots</span>
                 </div>
               </div>
             </div>
@@ -253,19 +258,32 @@ export default async function HomePage() {
               className="group relative rounded-2xl overflow-hidden glass-panel border border-white/10 hover:border-gold-500/40 hover:shadow-2xl transition-all duration-300 flex flex-col"
             >
               {/* Card Header Media Aspect */}
-              <div className="relative h-56 bg-gradient-to-br from-forest-800/80 via-forest-900 to-obsidian p-5 flex flex-col justify-between overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,160,23,0.2),transparent_60%)]" />
+              <div className="relative h-56 bg-obsidian p-5 flex flex-col justify-between overflow-hidden">
+                <img
+                  src={getAssetUrl(attraction.thumbnail)}
+                  alt={attraction.name}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/50 to-black/30" />
 
                 <div className="relative z-10 flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-obsidian/70 backdrop-blur-md text-gold-400 border border-gold-500/30">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-obsidian/80 backdrop-blur-md text-gold-400 border border-gold-500/30">
                     {attraction.category?.name || "Attraction"}
                   </span>
-                  {attraction.tour_available && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      360° Tour
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {attraction.view_count > 0 && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-obsidian/80 backdrop-blur-md text-stone-200 border border-white/10 flex items-center gap-1">
+                        <Eye className="w-3 h-3 text-gold-400" />
+                        {attraction.view_count.toLocaleString()}
+                      </span>
+                    )}
+                    {attraction.tour_available && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-950/80 backdrop-blur-md text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        360° Tour
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="relative z-10">
@@ -273,7 +291,7 @@ export default async function HomePage() {
                     <MapPin className="w-3.5 h-3.5 text-gold-400" />
                     <span>{attraction.state?.name || "Nigeria"}</span>
                   </div>
-                  <h3 className="font-heading font-black text-xl text-white group-hover:text-gold-300 transition-colors">
+                  <h3 className="font-heading font-black text-xl text-white group-hover:text-gold-300 transition-colors drop-shadow-md">
                     {attraction.name}
                   </h3>
                 </div>

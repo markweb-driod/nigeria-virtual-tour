@@ -78,7 +78,7 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-obsidian pt-32 sm:pt-36 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">

@@ -18,3 +18,14 @@ export function serializeData<T>(data: T): T {
     })
   );
 }
+
+/**
+ * Normalizes asset paths so they resolve accurately from /public
+ */
+export function getAssetUrl(path?: string | null, fallback = "/images/placeholder.webp"): string {
+  if (!path) return fallback;
+  if (path.startsWith("http")) return path;
+  const clean = path.replace(/^\/?(storage\/)?/, "");
+  return `/${clean}`;
+}
+

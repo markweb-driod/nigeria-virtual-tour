@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getAssetUrl } from "@/lib/utils";
 import {
   Compass,
   Play,
@@ -62,7 +63,15 @@ export default function AttractionDetailClient({
   return (
     <div className="relative pb-24">
       {/* ===== HERO BANNER ===== */}
-      <div className="relative min-h-[55vh] flex items-end pt-32 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-t from-obsidian via-forest-950/80 to-obsidian overflow-hidden">
+      <div className="relative min-h-[60vh] flex items-end pt-36 sm:pt-40 pb-20 px-4 sm:px-6 lg:px-8 bg-obsidian overflow-hidden">
+        {/* Real photographic background with dark gradient overlay */}
+        <img
+          src={getAssetUrl(attraction.hero_image || attraction.thumbnail)}
+          alt={attraction.name}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/85 to-obsidian/60" />
+
         {/* Ambient Glows */}
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[300px] bg-forest-600/20 blur-3xl pointer-events-none rounded-full" />
         <div className="absolute bottom-0 right-10 w-96 h-48 bg-gold-500/10 blur-3xl pointer-events-none rounded-full" />
@@ -278,20 +287,30 @@ export default function AttractionDetailClient({
                   {attraction.scenes?.map((scene: any) => (
                     <div
                       key={scene.id}
-                      className="glass-panel p-5 rounded-2xl border border-white/10 hover:border-gold-500/40 transition-all flex flex-col justify-between space-y-3"
+                      className="glass-panel p-5 rounded-2xl border border-white/10 hover:border-gold-500/40 transition-all flex flex-col justify-between space-y-3 overflow-hidden group"
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] font-mono text-stone-400 uppercase">
-                            Node {scene.sort_order}
-                          </span>
-                          {scene.is_default && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gold-500/20 text-gold-400 border border-gold-500/30">
-                              Start Scene
+                        <div className="relative h-32 rounded-xl overflow-hidden mb-3 bg-obsidian">
+                          <img
+                            src={getAssetUrl(scene.thumbnail || attraction.thumbnail)}
+                            alt={scene.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e: any) => { e.currentTarget.src = "/images/placeholder.webp"; }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-obsidian/80 via-transparent to-transparent" />
+                          <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-obsidian/80 backdrop-blur-md text-stone-300 uppercase border border-white/10">
+                              Node {scene.sort_order}
                             </span>
-                          )}
+                            {scene.is_default && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gold-500/30 backdrop-blur-md text-gold-300 border border-gold-500/40">
+                                Start Scene
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <h4 className="font-heading font-bold text-base text-white">
+
+                        <h4 className="font-heading font-bold text-base text-white group-hover:text-gold-300 transition-colors">
                           {scene.name}
                         </h4>
                         <p className="text-xs text-stone-300 mt-1 line-clamp-2">
@@ -303,7 +322,7 @@ export default function AttractionDetailClient({
                         href={`/tour/${attraction.slug}`}
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-gold-400 hover:text-gold-300 uppercase tracking-wider pt-2"
                       >
-                        <span>Explore This Node</span>
+                        <span>Explore 360° Node</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -326,9 +345,10 @@ export default function AttractionDetailClient({
                         className="relative h-48 rounded-2xl overflow-hidden border border-white/10"
                       >
                         <img
-                          src={media.path}
+                          src={getAssetUrl(media.path)}
                           alt={media.caption || attraction.name}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          onError={(e: any) => { e.currentTarget.src = "/images/placeholder.webp"; }}
                         />
                       </div>
                     ))}
@@ -406,14 +426,22 @@ export default function AttractionDetailClient({
                     <Link
                       key={item.id}
                       href={`/attractions/${item.slug}`}
-                      className="group block p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
+                      className="group flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
                     >
-                      <h5 className="font-heading font-bold text-sm text-white group-hover:text-gold-300 transition-colors">
-                        {item.name}
-                      </h5>
-                      <p className="text-xs text-stone-400 mt-0.5">
-                        {item.state?.name} State • {item.category?.name}
-                      </p>
+                      <img
+                        src={getAssetUrl(item.thumbnail)}
+                        alt={item.name}
+                        className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+                        onError={(e: any) => { e.currentTarget.src = "/images/placeholder.webp"; }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h5 className="font-heading font-bold text-sm text-white group-hover:text-gold-300 transition-colors truncate">
+                          {item.name}
+                        </h5>
+                        <p className="text-xs text-stone-400 mt-0.5 truncate">
+                          {item.state?.name} State • {item.category?.name}
+                        </p>
+                      </div>
                     </Link>
                   ))}
                 </div>

@@ -46,7 +46,7 @@ export default async function HotspotEditorPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian pt-20 pb-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-obsidian pt-28 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8">
       <HotspotEditorClient
         scene={scene}
         availableScenes={allScenesInAttraction}
