@@ -6,6 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
+    "db:import": "node scripts/import-db.js",
+    "db:seed": "node scripts/seed-tour-views.js",
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull",
     "prisma:studio": "prisma studio"
