@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { serializeData } from "@/lib/utils";
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
 import {
   Shield,
   Layers,
@@ -96,6 +97,7 @@ export default async function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LogoutButton />
             <Link
               href="/admin/scenes/1/edit"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-heading font-bold text-xs uppercase tracking-wider bg-gold-400 hover:bg-gold-300 text-obsidian shadow-glow-gold transition-all"
