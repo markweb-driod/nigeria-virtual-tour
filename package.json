@@ -11,7 +11,8 @@
     "db:seed": "node scripts/seed-tour-views.js",
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "db:import:remote": "node scripts/import-remote.js"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
@@ -37,6 +38,7 @@
     "@types/node": "^20.17.19",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "mysql2": "^3.11.5",
     "prisma": "^6.4.1",
     "typescript": "^5.7.3"
   }
