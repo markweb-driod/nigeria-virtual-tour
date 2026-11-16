@@ -21,6 +21,75 @@ import {
   Activity,
   Sparkles,
 } from "lucide-react";
+import { getPanoramaMeta } from "@/lib/panoramas";
+
+/**
+ * Viewing setup for a scene. Real photos (see lib/panoramas.ts) only cover part
+ * of the sphere, so we tell Pannellum their angles, start centred, and squeeze
+ * hotspots (authored for a full 360°) into the visible area.
+ */
+const toRad = (d: number) => (d * Math.PI) / 180;
+const toDeg = (r: number) => (r * 180) / Math.PI;
+
+/** Widest horizontal FOV that still keeps the photo filling a viewport of this aspect. */
+function maxHfovFor(meta: { haov: number; vaov: number }, aspect: number) {
+  const byHeight = toDeg(2 * Math.atan(Math.tan(toRad(meta.vaov / 2)) * aspect));
+  return Math.max(10, Math.min(meta.haov, byHeight) * 0.97);
+}
+
+function viewportAspect() {
+  const el = typeof document !== "undefined" ? document.getElementById("panorama-container") : null;
+  const w = el?.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 16);
+  const h = el?.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 9);
+  return w / h;
+}
+
+function sceneView(scene: {
+  panorama_path: string;
+  initial_yaw: number;
+  initial_pitch: number;
+  initial_hfov: number;
+}) {
+  const meta = getPanoramaMeta(scene.panorama_path);
+  if (!meta) {
+    return {
+      meta,
+      yaw: scene.initial_yaw || 0,
+      pitch: scene.initial_pitch || 0,
+      hfov: scene.initial_hfov || 100,
+      config: {},
+      mapHotspot: (yaw: number, pitch: number) => ({ yaw, pitch }),
+    };
+  }
+  const halfH = meta.haov / 2;
+  const halfV = meta.vaov / 2;
+  const maxHfov = maxHfovFor(meta, viewportAspect());
+  const hfov = Math.min(scene.initial_hfov || 100, meta.haov * 0.85, maxHfov);
+  return {
+    meta,
+    yaw: 0,
+    pitch: 0,
+    hfov,
+    config: {
+      haov: meta.haov,
+      vaov: meta.vaov,
+      vOffset: 0,
+      // Explicit bounds let avoidShowingBackground also cap the zoom so the
+      // view never runs past the photo's edges (e.g. on tall phone screens).
+      minYaw: -halfH,
+      maxYaw: halfH,
+      minPitch: -halfV,
+      maxPitch: halfV,
+      avoidShowingBackground: true,
+      minHfov: Math.min(30, hfov),
+      maxHfov,
+    },
+    mapHotspot: (yaw: number, pitch: number) => ({
+      yaw: (yaw / 180) * halfH * 0.8,
+      pitch: Math.max(-halfV * 0.7, Math.min(halfV * 0.7, pitch)),
+    }),
+  };
+}
 
 declare global {
   interface Window {
@@ -132,12 +201,14 @@ export default function TourViewer({ attraction }: TourViewerProps) {
     const scenesConfig: Record<string, any> = {};
 
     attraction.scenes.forEach((scene) => {
+      const view = sceneView(scene);
       // Hotspots for this scene
       const hotSpots = scene.hotspots.map((hs) => {
+        const pos = view.mapHotspot(hs.yaw, hs.pitch);
         if (hs.type === "scene" && hs.target_scene) {
           return {
-            pitch: hs.pitch,
-            yaw: hs.yaw,
+            pitch: pos.pitch,
+            yaw: pos.yaw,
             type: "scene",
             text: hs.label,
             sceneId: hs.target_scene.slug,
@@ -145,8 +216,8 @@ export default function TourViewer({ attraction }: TourViewerProps) {
           };
         } else {
           return {
-            pitch: hs.pitch,
-            yaw: hs.yaw,
+            pitch: pos.pitch,
+            yaw: pos.yaw,
             type: "info",
             text: hs.label,
             cssClass: "custom-hotspot-info",
@@ -164,9 +235,10 @@ export default function TourViewer({ attraction }: TourViewerProps) {
       scenesConfig[scene.slug] = {
         title: scene.name,
         panorama: panoramaUrl,
-        yaw: scene.initial_yaw || 0,
-        pitch: scene.initial_pitch || 0,
-        hfov: scene.initial_hfov || 100,
+        yaw: view.yaw,
+        pitch: view.pitch,
+        hfov: view.hfov,
+        ...view.config,
         autoLoad: true,
         showControls: false,
         hotSpots,
@@ -220,8 +292,24 @@ export default function TourViewer({ attraction }: TourViewerProps) {
     };
     animId = requestAnimationFrame(calcFps);
 
+    // Keep partial-photo scenes filling the screen when the window changes shape.
+    const onResize = () => {
+      const v = viewerRef.current;
+      if (!v?.getScene) return;
+      const scene = attraction.scenes.find((s) => s.slug === v.getScene());
+      const meta = scene && getPanoramaMeta(scene.panorama_path);
+      if (!meta) return;
+      const max = maxHfovFor(meta, viewportAspect());
+      const [min] = v.getHfovBounds ? v.getHfovBounds() : [30];
+      v.setHfovBounds?.([Math.min(min, max), max]);
+      if (v.getHfov() > max) v.setHfov(max, false);
+    };
+    window.addEventListener("resize", onResize);
+    viewerRef.current?.on?.("load", onResize);
+
     // End session on unmount
     return () => {
+      window.removeEventListener("resize", onResize);
       cancelAnimationFrame(animId);
       if (sessionUuidRef.current) {
         const avgFps =
@@ -300,12 +388,9 @@ export default function TourViewer({ attraction }: TourViewerProps) {
   const resetOrientation = () => {
     if (!viewerRef.current) return;
     const scene = attraction.scenes.find((s) => s.slug === currentSceneSlug);
-    viewerRef.current.lookAt(
-      scene?.initial_pitch || 0,
-      scene?.initial_yaw || 0,
-      scene?.initial_hfov || 100,
-      600
-    );
+    if (!scene) return;
+    const view = sceneView(scene);
+    viewerRef.current.lookAt(view.pitch, view.yaw, view.hfov, 600);
   };
 
   const toggleFullscreen = () => {
@@ -320,6 +405,9 @@ export default function TourViewer({ attraction }: TourViewerProps) {
 
   const currentScene =
     attraction.scenes.find((s) => s.slug === currentSceneSlug) || defaultScene;
+  const currentCredit = currentScene
+    ? getPanoramaMeta(currentScene.panorama_path)?.credit
+    : undefined;
 
   return (
     <div className="relative w-full h-full select-none overflow-hidden bg-obsidian">
@@ -500,6 +588,19 @@ export default function TourViewer({ attraction }: TourViewerProps) {
           </div>
         )}
       </div>
+
+      {/* ===== PHOTO CREDIT (CC attribution) ===== */}
+      {currentCredit && (
+        <a
+          href={currentCredit.source}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2 right-3 z-30 max-w-[60vw] truncate text-[10px] text-stone-300/80 hover:text-white bg-black/40 px-2 py-0.5 rounded"
+          title={`${currentCredit.title} by ${currentCredit.author}, ${currentCredit.license}`}
+        >
+          Photo: {currentCredit.author} · {currentCredit.license} · Wikimedia Commons
+        </a>
+      )}
 
       {/* ===== INTERACTIVE INFORMATION HOTSPOT MODAL ===== */}
       {activeInfoHotspot && (
